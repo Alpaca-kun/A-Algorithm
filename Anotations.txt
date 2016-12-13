@@ -1,0 +1,21 @@
+Definições:
+
+g(n) = custo no menor caminho entre o estado inicial e o estado n qualquer.
+h(n) = custo do menor caminho entre o estado n e o estado final.
+f(n) = o custo do caminho do estado inicial até o estado final passando pelo estado n. 
+f(n) = g(n) + h(n)
+h'(n) - estimativa do custo do menor caminho entre o estado n e o estado final - função heurística.
+
+/*-----------------------------------------------------------------------------------------------------*/
+
+Algoritmo A*:
+
+Notações:
+– A : conjunto dos estados abertos;
+– F: conjunto dos estados fechados;
+– S: conjunto dos estados iniciais;
+– T: conjunto dos estados finais;
+– P(s) : ponteiro para o pai do nó s;
+– r(v): conjunto dos estados sucessores de v.
+
+
