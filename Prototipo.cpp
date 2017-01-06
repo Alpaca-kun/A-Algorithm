@@ -1,7 +1,7 @@
 /*
- * Open List -> armazenar ordenadamente as possibilidades abertas de um nó, podendo abrir no máximo por 4 nó
- * Closed List -> armazenar todos os nós já visitados
- * Map -> concatenação das listas, para verificar a existência de uma possibilidade
+ * Open List: armazenar ordenadamente as possibilidades abertas de um nó, podendo abrir no máximo por 4 nó -> Usar Priority Queue
+ * Closed List: armazenar todos os nós já visitados -> usar Unordered Map
+ * Map: concatenação das listas, para verificar a existência de uma possibilidade. Caso houver uma possibilidade, desconsiderar e pular
  * 
  */
 
@@ -9,61 +9,96 @@
 #include <unordered_map>
 #include <string>
 #include <queue>
+#include <set>
+#include <array>
+#include <cmath>
+#include <utility>
 
-#define solution "00010203040506070809101112131415";
+using namespace std;
+//using namespace *** costs more
 
-using namespace std::tr1;
-//using namespace *** cost more
+typedef unordered_map <string, int> uMap;
+typedef priority_queue <int, vector<int>, greater<int>> pQueue;
+typedef multiset <int> mSet;
+typedef array <int, 16> arrayOfTable;
 
-typedef struct 
+arrayOfTable solution = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
-typedef unordered_map <string, int> unoMap;
-typedef priority_queue <int> prioQue;
+bool verifySolution (arrayOfTable actualTable) {
+  if (solution == actualTable) 
+    return true;
+  else 
+    return false;
+}
 
-int verifyError (int actualTable[]) {
+int heuristicOne (arrayOfTable actualTable) {
   int error = 0;
 
-  for (int i = 0; i < 15; i++)
+  for (int i = 0; i < 16; i++)
     if (actualTable[i] != i + 1)
       error++;
-
-  if (actualTable[i] != 0)
-    error++;
 
   return error;
 }
 
-string intToString () {
+int heuristicTwo (arrayOfTable actualTable) {
+  int error = 0,
+      reference = actualTable[0];
+
+  for (int i = 1; i < 16; i++) {
+    if (++reference != actualTable[i]) {
+      if (reference < 16)
+        error++;
+      reference = actualTable[i];
+    }
+  }
+
+  return error;
+}
+
+int heuristicThree (arrayOfTable actualTable) {
+  int error = 0,
+      xMove, yMove;
+
+  for (int i = 0; i < 16; i++) { 
+    if (actualTable[i] != i + 1) {
+      yMove = abs(((actualTable[i] - 1) / 4) - (i / 4)) ; 
+      // quantos mov. requere-se para chegar na pos. y adequada
+      xMove = abs(((actualTable[i] - 1) % 4) - (i % 4)) ; 
+      // quantos mov. requere-se para chegar na pos. x adequada
+      error += (yMove + xMove);
+    }
+    else 
+      continue;
+  }
+
+  return error;
+}
+
+string intToString (arrayOfTable actualTable) {
   string s;
 
   for (int i = 0; i < 16; i++) {
-    cin >> initialTable[i];
-    if (initialTable[i] < 10)
+    cin >> actualTable[i];
+    if (actualTable[i] < 10)
       s += "0";
-    s += to_string(initialTable[i]);
+    s += to_string(actualTable[i]);
   }
 
   return s;
 }
 
-
-int heuristicOne () {
-  int initialTable[16];
-  int totalCost = 0,
-      height = 0,
-      heuristic = 0;
+//Talvez nw precisa declarar uma funcao so para isso ;D
+void swapSquare (arrayOfTable actualTable, int originalPostion, int destinyPostion) {
+  swap(actualTable[originalPostion], actualTable[destinyPostion]);
 }
 
 int main () {
-  int initialTable[16];
-  int heuristic = 0;
-  string s;
+   arrayOfTable initialTable;
 
   for (int i = 0; i < 16; i++) {
     cin >> initialTable[i];
-    if (initialTable[i] < 10)
-      s += "0";
-    s += to_string(initialTable[i]);
+    if (initialTable[i] == 0)
+      initialTable[i] = 16;
   }
-
 }
