@@ -13,16 +13,27 @@
 #include <array>
 #include <cmath>
 #include <utility>
+#include <algorithm>
+#include <iterator>
+#include <functional>
 
 using namespace std;
 //using namespace *** costs more
 
-typedef unordered_map <string, int> uMap;
-typedef priority_queue <int, vector<int>, greater<int>> pQueue;
-typedef multiset <int> mSet;
 typedef array <int, 16> arrayOfTable;
-
 arrayOfTable solution = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+struct node {
+  arrayOfTable key;
+  int f;
+  int g;
+  int h;
+  node *parent;
+};
+
+typedef unordered_map <arrayOfTable, node> uMap; //<chave, referencia>
+typedef priority_queue <node> pQueue;
+typedef multiset <int> mSet;
 
 bool verifySolution (arrayOfTable actualTable) {
   if (solution == actualTable) 
@@ -75,6 +86,23 @@ int heuristicThree (arrayOfTable actualTable) {
   return error;
 }
 
+int heuristicFour (arrayOfTable actualTable) {
+  int h1 = heuristicOne(actualTable),
+      h2 = heuristicTwo(actualTable),
+      h3 = heuristicThree(actualTable);
+
+  //multiplicar algum peso as heuristicas
+  return h1 + h2 + h3;
+}
+
+int heuristicFive (arrayOfTable actualTable) {
+  int h1 = heuristicOne(actualTable),
+      h2 = heuristicTwo(actualTable),
+      h3 = heuristicThree(actualTable);
+
+  return max(max(h1, h2), h3);
+}
+
 string intToString (arrayOfTable actualTable) {
   string s;
 
@@ -93,6 +121,74 @@ void swapSquare (arrayOfTable actualTable, int originalPostion, int destinyPosti
   swap(actualTable[originalPostion], actualTable[destinyPostion]);
 }
 
+int discoverVacuumPostion (arrayOfTable actualTable) {
+  int i = 0;
+  
+  while (actualTable[i] != 16) 
+    i++;
+
+  return i;
+}
+
+int aStar (arrayOfTable initialTable) {
+  int height = 0;
+
+  pQueue openList;
+  uMap closedList, concatenateList;
+
+  node parentNode;
+  node childNode[4];
+  node auxNode;
+
+  openList.push(parentNode{initialTable, 0, 0, 0, NULL});
+
+  while(!openList.empty()) {
+    // liberar o primeiro elemento do opened list
+    parentNode = openList.top();
+    openList.pop();
+
+    int numberOfChild = 0;
+    int movablePiece = discoverVacuumPostion(auxNode.key);
+
+    for (int i = 1; i <= 4; i += 3) {
+      if (movablePiece - i > -1) {  
+        childNode[numberOfChild] = auxNode;
+        swap(childNode[numberOfChild].key[movablePiece], childNode[numberOfChild].key[movablePiece - i]);
+        numberOfChild++;
+      }
+
+      if (movablePiece + i < 16) {  
+        childNode[numberOfChild] = auxNode;
+        swap(childNode[numberOfChild].key[movablePiece], childNode[numberOfChild].key[movablePiece + i]);
+        numberOfChild++;
+      }
+    }
+
+    for (int i = 0; i < numberOfChild; i++)
+      childNode[numberOfChild].parent->auxNode;
+      
+    for (int i = 0; i < numberOfChild; i++) {
+      if (childNode[numberOfChild].key == solution)
+        break;
+
+      childNode[numberOfChild].g = parentNode.g + 1; // 1 is the distance between the father and child
+      childNode[numberOfChild].h = heuristicFive(childNode[numberOfChild].key);
+      childNode[numberOfChild].f = childNode[numberOfChild].g + childNode[numberOfChild].h;
+
+      if (!openList.empty())
+        for (int i = 0; i < openList.size(); i++) {
+          if (childNode[numberOfChild].key == openList[i])
+        }
+    }
+
+
+    closedList.push();
+    concatenateList.push();
+    openList.pop();
+  }
+}
+
+/*-------int main--------*/
 int main () {
    arrayOfTable initialTable;
 
