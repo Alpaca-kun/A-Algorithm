@@ -171,20 +171,23 @@ int aStar (arrayOfTable initialTable) {
       if (childNode[numberOfChild].key == solution)
         break;
 
-      childNode[numberOfChild].g = parentNode.g + 1; // 1 is the distance between the father and child
+      childNode[numberOfChild].g = parentNode.g + 1; // 1 is the distance between the father and child nodes
       childNode[numberOfChild].h = heuristicFive(childNode[numberOfChild].key);
       childNode[numberOfChild].f = childNode[numberOfChild].g + childNode[numberOfChild].h;
 
-      if (!openList.empty())
+      if (!openList.empty()) {
         for (int i = 0; i < openList.size(); i++) {
-          if (childNode[numberOfChild].key == openList[i])
+          if ((childNode[numberOfChild].key == openList(i)) && (childNode[numberOfChild].f > openList(i).f)) 
+            continue;
+          else if (childNode[numberOfChild].key == closedList.first) && (childNode[numberOfChild].f > closedList.second.f)
+            continue;
+          else
+            openList.push(childNode[numberOfChild]);
         }
+      }
     }
 
-
-    closedList.push();
-    concatenateList.push();
-    openList.pop();
+    closedList.push(childNode[numberOfChild].key, childNode[numberOfChild]); 
   }
 }
 
