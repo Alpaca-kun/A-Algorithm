@@ -139,35 +139,39 @@ int aStar (arrayOfTable initialTable) {
       parentNode = openList.top();
       openList.pop();
       auto matchKey = closedList.find(parentNode.key);
-    } while (!(matchKey == closedList.end()));
-    
+    } while (!(matchKey == closedList.end())); // tirei a condicao auto matchKey... do loop e da condicao do while
 
     closedList.emplace(parentNode.key, parentNode); 
 
     int numberOfChild = 0;
     int positionOfSpace = discoverVacuumPostion(parentNode.key);
+    int xPos = positionOfSpace % 4,
+        yPos = positionOfSpace / 4;
 
-    for (int i = 1; i <= 4; i += 3) { //corrigir as condicoes que o espaco esta nas bordas
-      int possibleMove = positionOfSpace - i;
-      int xPos = positionOfSpace % 4,
-          yPos = positionOfSpace / 4;
-
-      if ((xPos == 0) || (xPos == 3)) 
-
-/*
-      if (possibleMove > -1) && (possibleMove != ){  
-        childNode[numberOfChild] = auxNode;
-        swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace - i]);
-        numberOfChild++;
-      }
-
-      if (positionOfSpace + i < 16) {  
-        childNode[numberOfChild] = auxNode;
-        swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace + i]);
-        numberOfChild++;
-      }
+    if (yPos != 0) {
+      childNode[numberOfChild] = parentNode;
+      swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace - 4]);
+      numberOfChild++;
     }
-*/
+
+    if (yPos != 3) {
+      childNode[numberOfChild] = parentNode;
+      swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace + 4]);
+      numberOfChild++;
+    }
+
+    if (xPos != 0) {
+      childNode[numberOfChild] = parentNode;
+      swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace - 1]);
+      numberOfChild++;
+    }
+
+    if (xPos != 3) {
+      childNode[numberOfChild] = parentNode;
+      swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace + 1]);
+      numberOfChild++;
+    }
+
     auto matchKey = closedList.find(parentNode.key);
 
     for (int i = 0; i < numberOfChild; i++) {
@@ -180,7 +184,7 @@ int aStar (arrayOfTable initialTable) {
 
       //Change the heuristic functions by demand
       childNode[i].heuristic = heuristicOne(childNode[i].key);
-      childNode[i].costByNode = auxNode.costByNode + 1; // 1 is the height cost
+      childNode[i].costByNode = parentNode.costByNode + 1; // 1 is the height cost
       childNode[i].totalCost = childNode[i].heuristic + childNode[i].costByNode;
 
       for (int i = 0; i < numberOfChild; i++) {
