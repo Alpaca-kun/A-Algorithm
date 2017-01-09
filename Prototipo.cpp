@@ -135,10 +135,12 @@ int aStar (arrayOfTable initialTable) {
   openList.push(parentNode);
 
   while(!openList.empty()) {
+    uMap::iterator matchKey;
+
     do {
       parentNode = openList.top();
       openList.pop();
-      auto matchKey = closedList.find(parentNode.key);
+      matchKey = closedList.find(parentNode.key);
     } while (!(matchKey == closedList.end())); // tirei a condicao auto matchKey... do loop e da condicao do while
 
     closedList.emplace(parentNode.key, parentNode); 
@@ -172,28 +174,23 @@ int aStar (arrayOfTable initialTable) {
       numberOfChild++;
     }
 
-    auto matchKey = closedList.find(parentNode.key);
-
-    for (int i = 0; i < numberOfChild; i++) {
-      childNode[i].parent = matchKey;
-    }
+    for (int i = 0; i < numberOfChild; i++) 
+      childNode[i].parent = &(matchKey->second);
   
     for (int i = 0; i < numberOfChild; i++) {
       if (childNode[i].key == solution)
-        return childNode[i].costByNode;
+          return childNode[i].totalCost;
 
       //Change the heuristic functions by demand
-      childNode[i].heuristic = heuristicOne(childNode[i].key);
-      childNode[i].costByNode = parentNode.costByNode + 1; // 1 is the height cost
+      childNode[i].heuristic = heuristicThree(childNode[i].key);
+      childNode[i].costByNode = childNode[i].parent->costByNode + 1; // 1 is the height cost
       childNode[i].totalCost = childNode[i].heuristic + childNode[i].costByNode;
 
-      for (int i = 0; i < numberOfChild; i++) {
-        auto matchKey = closedList.find(childNode[i].key);
-        if (!(matchKey == closedList.end()) && (childNode[i].totalCost > matchKey->second.totalCost))
-          continue;
-        else
-          openList.push(childNode[i]);
-       }
+      matchKey = closedList.find(childNode[i].key);
+      if (!(matchKey == closedList.end()) && (childNode[i].totalCost > matchKey->second.totalCost))
+        continue;
+      else
+        openList.push(childNode[i]);
     }
   }
 }
@@ -211,5 +208,5 @@ int main () {
   }
   
   result = aStar(initialTable);
-  cout << "Resultado: " << result;
+  cout << "Resultado: " << result << endl;
 }
