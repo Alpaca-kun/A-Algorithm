@@ -131,22 +131,30 @@ int aStar (arrayOfTable initialTable) {
 
   node parentNode{initialTable, 0, 0, 0, NULL};
   node childNode[4];
-  node auxNode;
 
   openList.push(parentNode);
 
   while(!openList.empty()) {
-    parentNode = openList.top();
-    openList.pop();
+    do {
+      parentNode = openList.top();
+      openList.pop();
+      auto matchKey = closedList.find(parentNode.key);
+    } while (!(matchKey == closedList.end()));
+    
+
+    closedList.emplace(parentNode.key, parentNode); 
 
     int numberOfChild = 0;
-    int positionOfSpace = discoverVacuumPostion(auxNode.key);
+    int positionOfSpace = discoverVacuumPostion(parentNode.key);
 
     for (int i = 1; i <= 4; i += 3) { //corrigir as condicoes que o espaco esta nas bordas
       int possibleMove = positionOfSpace - i;
       int xPos = positionOfSpace % 4,
           yPos = positionOfSpace / 4;
 
+      if ((xPos == 0) || (xPos == 3)) 
+
+/*
       if (possibleMove > -1) && (possibleMove != ){  
         childNode[numberOfChild] = auxNode;
         swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace - i]);
@@ -159,9 +167,12 @@ int aStar (arrayOfTable initialTable) {
         numberOfChild++;
       }
     }
+*/
+    auto matchKey = closedList.find(parentNode.key);
 
-    for (int i = 0; i < numberOfChild; i++)
-      
+    for (int i = 0; i < numberOfChild; i++) {
+      childNode[i].parent = matchKey;
+    }
   
     for (int i = 0; i < numberOfChild; i++) {
       if (childNode[i].key == solution)
@@ -172,7 +183,7 @@ int aStar (arrayOfTable initialTable) {
       childNode[i].costByNode = auxNode.costByNode + 1; // 1 is the height cost
       childNode[i].totalCost = childNode[i].heuristic + childNode[i].costByNode;
 
-      for (int i = 0; i < i; i++) {
+      for (int i = 0; i < numberOfChild; i++) {
         auto matchKey = closedList.find(childNode[i].key);
         if (!(matchKey == closedList.end()) && (childNode[i].totalCost > matchKey->second.totalCost))
           continue;
@@ -180,7 +191,6 @@ int aStar (arrayOfTable initialTable) {
           openList.push(childNode[i]);
        }
     }
-    closedList.emplace(parentNode.key, parentNode); 
   }
 }
 
