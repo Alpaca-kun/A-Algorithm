@@ -25,22 +25,34 @@ arrayOfTable solution = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
 struct node {
   arrayOfTable key;
-  int f;
-  int g;
-  int h;
+  double totalCost;
+  double costByNode;
+  double heuristic;
   node *parent;
 };
 
+//hash function for array of int
+namespace std {
+  template <>
+  struct hash<arrayOfTable> {
+    size_t operator()(const arrayOfTable& array) const {
+      size_t hc = array.size();
+      for (int i = 0; i < array.size(); i++)
+        hc = hc*314159 + array[i];
+    }
+  };
+
+  template<>
+  struct less<node> {
+    bool operator()(const node& list, const node& list2) const {
+      return list.totalCost > list2.totalCost;
+    }
+  };
+}
+
 typedef unordered_map <arrayOfTable, node> uMap; //<chave, referencia>
 typedef priority_queue <node> pQueue;
-typedef multiset <int> mSet;
-
-bool verifySolution (arrayOfTable actualTable) {
-  if (solution == actualTable) 
-    return true;
-  else 
-    return false;
-}
+typedef multiset <arrayOfTable> mSet;
 
 int heuristicOne (arrayOfTable actualTable) {
   int error = 0;
@@ -103,24 +115,6 @@ int heuristicFive (arrayOfTable actualTable) {
   return max(max(h1, h2), h3);
 }
 
-string intToString (arrayOfTable actualTable) {
-  string s;
-
-  for (int i = 0; i < 16; i++) {
-    cin >> actualTable[i];
-    if (actualTable[i] < 10)
-      s += "0";
-    s += to_string(actualTable[i]);
-  }
-
-  return s;
-}
-
-//Talvez nw precisa declarar uma funcao so para isso ;D
-void swapSquare (arrayOfTable actualTable, int originalPostion, int destinyPostion) {
-  swap(actualTable[originalPostion], actualTable[destinyPostion]);
-}
-
 int discoverVacuumPostion (arrayOfTable actualTable) {
   int i = 0;
   
@@ -131,73 +125,77 @@ int discoverVacuumPostion (arrayOfTable actualTable) {
 }
 
 int aStar (arrayOfTable initialTable) {
-  int height = 0;
-
   pQueue openList;
-  uMap closedList, concatenateList;
+  uMap closedList;
+  mSet puzzlePatterns;
 
-  node parentNode;
+  node parentNode{initialTable, 0, 0, 0, NULL};
   node childNode[4];
   node auxNode;
 
-  openList.push(parentNode{initialTable, 0, 0, 0, NULL});
+  openList.push(parentNode);
 
   while(!openList.empty()) {
-    // liberar o primeiro elemento do opened list
     parentNode = openList.top();
     openList.pop();
 
     int numberOfChild = 0;
-    int movablePiece = discoverVacuumPostion(auxNode.key);
+    int positionOfSpace = discoverVacuumPostion(auxNode.key);
 
-    for (int i = 1; i <= 4; i += 3) {
-      if (movablePiece - i > -1) {  
+    for (int i = 1; i <= 4; i += 3) { //corrigir as condicoes que o espaco esta nas bordas
+      int possibleMove = positionOfSpace - i;
+      int xPos = positionOfSpace % 4,
+          yPos = positionOfSpace / 4;
+
+      if (possibleMove > -1) && (possibleMove != ){  
         childNode[numberOfChild] = auxNode;
-        swap(childNode[numberOfChild].key[movablePiece], childNode[numberOfChild].key[movablePiece - i]);
+        swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace - i]);
         numberOfChild++;
       }
 
-      if (movablePiece + i < 16) {  
+      if (positionOfSpace + i < 16) {  
         childNode[numberOfChild] = auxNode;
-        swap(childNode[numberOfChild].key[movablePiece], childNode[numberOfChild].key[movablePiece + i]);
+        swap(childNode[numberOfChild].key[positionOfSpace], childNode[numberOfChild].key[positionOfSpace + i]);
         numberOfChild++;
       }
     }
 
     for (int i = 0; i < numberOfChild; i++)
-      childNode[numberOfChild].parent->auxNode;
       
+  
     for (int i = 0; i < numberOfChild; i++) {
-      if (childNode[numberOfChild].key == solution)
-        break;
+      if (childNode[i].key == solution)
+        return childNode[i].costByNode;
 
-      childNode[numberOfChild].g = parentNode.g + 1; // 1 is the distance between the father and child nodes
-      childNode[numberOfChild].h = heuristicFive(childNode[numberOfChild].key);
-      childNode[numberOfChild].f = childNode[numberOfChild].g + childNode[numberOfChild].h;
+      //Change the heuristic functions by demand
+      childNode[i].heuristic = heuristicOne(childNode[i].key);
+      childNode[i].costByNode = auxNode.costByNode + 1; // 1 is the height cost
+      childNode[i].totalCost = childNode[i].heuristic + childNode[i].costByNode;
 
-      if (!openList.empty()) {
-        for (int i = 0; i < openList.size(); i++) {
-          if ((childNode[numberOfChild].key == openList(i)) && (childNode[numberOfChild].f > openList(i).f)) 
-            continue;
-          else if (childNode[numberOfChild].key == closedList.first) && (childNode[numberOfChild].f > closedList.second.f)
-            continue;
-          else
-            openList.push(childNode[numberOfChild]);
-        }
-      }
+      for (int i = 0; i < i; i++) {
+        auto matchKey = closedList.find(childNode[i].key);
+        if (!(matchKey == closedList.end()) && (childNode[i].totalCost > matchKey->second.totalCost))
+          continue;
+        else
+          openList.push(childNode[i]);
+       }
     }
-
-    closedList.push(childNode[numberOfChild].key, childNode[numberOfChild]); 
+    closedList.emplace(parentNode.key, parentNode); 
   }
 }
 
+
 /*-------int main--------*/
 int main () {
-   arrayOfTable initialTable;
+  arrayOfTable initialTable;
+  int result = 0;
 
   for (int i = 0; i < 16; i++) {
     cin >> initialTable[i];
     if (initialTable[i] == 0)
       initialTable[i] = 16;
   }
+  
+  result = aStar(initialTable);
+  cout << "Resultado: " << result;
 }
